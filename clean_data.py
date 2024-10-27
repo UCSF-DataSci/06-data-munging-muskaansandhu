@@ -20,7 +20,10 @@ def remove_duplicates(df):
 
 def outliers(df): 
     df = df[df['year'] <= 2023]
-    df = df[df['population'] < 1000000000]
+    quantile_1 = df['population'].quantile(0.25)
+    quantile_3 = df['population'].quantile(0.75)
+    range = quantile_3 - quantile_1 
+    df = df[df['population'] > (quantile_1 + (range*1.5)) & df['population'] < (quantile_3 + (range*1.5))]
     df = df[df['gender'] < 3]
     df['income_groups'] = df['income_groups'].str.replace('_typo', '', regex=False)
     return df 
@@ -47,6 +50,8 @@ if __name__ == '__main__':
     #saving clean dataset 
     messy_file.to_csv(args.output_file, index=False)
     print(f"\nMessy dataset saved as '{args.output_file}'")
+except Exception as e:
+    print(f"Error: An issue occurred while running the script - {e}")
 
 
     
